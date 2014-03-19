@@ -20,6 +20,15 @@ Dependencies
 - Commerce
 - Drush
 
+Support
+=======
+
+Home page:
+https://drupal.org/project/commerce_drush
+
+Known bugs:
+https://drupal.org/project/issues/commerce_drush
+
 Credits
 =======
 This project has been sponsored by [Opsview](http://www.opsview.com/).

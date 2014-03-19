@@ -1,0 +1,6 @@
+name = Commerce Drush
+description = Provides the drush commands for Commerce.
+package = Commerce
+dependencies[] = commerce
+core = 7.x
+

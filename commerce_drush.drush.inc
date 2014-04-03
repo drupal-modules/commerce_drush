@@ -52,7 +52,12 @@ function commerce_drush_drush_command() {
  * Place a new order via drush
  */
 function commerce_drush_drush_place_order() {
-  global $user;
+  if ($user = drush_get_option('user')) {
+    $user = user_load_by_name($user);
+  }
+  else {
+    global $user;
+  }
 
   // The provided products specified in the command.
   $products = _convert_csv_to_array(func_get_args());

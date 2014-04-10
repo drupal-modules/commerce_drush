@@ -5,3 +5,29 @@
  * Defines the Commerce drush commands to manage orders and interact with them.
  */
 
+/**
+ * Implements hook_user_insert().
+ */
+function commerce_drush_entity_presave($entity, $type) {
+  // We need to ensure that generated data aren't too long.
+
+  if ($type === 'user') {
+    if (isset($entity->devel_generate)) {
+      // We don't want default.invalid host, we want example.com - it validates.
+
+      if (strpos($entity->mail, '@default.invalid') !== FALSE) {
+        $entity->mail = substr($entity->mail, 0, strpos($entity->mail, '@default.invalid')) . '@example.com';
+      }
+
+      foreach ($entity as &$value) {
+        if (is_array($value) && isset($value[LANGUAGE_NONE][0]['value'])) {
+          $value[LANGUAGE_NONE][0]['value'] = substr($value[LANGUAGE_NONE][0]['value'], 0, 10);
+        }
+
+        if (is_array($value) && isset($value[LANGUAGE_NONE][0]['safe_value'])) {
+          $value[LANGUAGE_NONE][0]['safe_value'] = substr($value[LANGUAGE_NONE][0]['safe_value'], 0, 10);
+        }
+      }
+    }
+  }
+}

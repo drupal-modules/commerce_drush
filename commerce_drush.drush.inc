@@ -40,11 +40,12 @@ function commerce_drush_drush_command() {
     'required-arguments' => TRUE,
     'options' => array(
       'quantity' => 'Total quantity of product.',
+      'empty' => 'Empty current shopping cart order before placing the order.',
       ),
     'examples' => array(
       'drush commerce-order-add 1' => 'Create an order for product 1.',
       'drush coa 2,3' => 'Create an order for product 2 and 3.',
-      'drush --user=admin coa SKU1001 --quantity=2' => 'Create an order for 2 products with SKU SKU1001.',
+      'drush --user=admin coa SKU1001 --quantity=2 --timediff="-3 year"' => 'Create an order for 2 products with SKU SKU1001.',
     ),
     'core' => array(7),
   );
@@ -111,12 +112,30 @@ function commerce_drush_drush_place_order() {
 
     // Create the new order in checkout; you might also check first to
     // see if your user already has an order to use instead of a new one.
-    $order = commerce_cart_order_new($user->uid);
 
-    // Save the order to get its ID.
-    commerce_order_save($order);
+    $order = commerce_cart_order_load($user->uid);
+
+    if ($order === FALSE) {
+      try {
+        $order = commerce_cart_order_new($user->uid);
+      } catch (DatabaseTransactionOutOfOrderException $e) {
+        // It's a bug, when inserting a new order, the
+        // commerce_addressbook_commerce_order_insert hook tries to save it
+        // again and thus it's breaking transaction order.
+      }
+    }
 
     drush_log('Order created. Commerce order id is now ' . $order->order_id);
+
+    if (($time_diff = drush_get_option('timediff')) !== NULL) {
+      $order->created
+        = $order->updated = strtotime($time_diff, REQUEST_TIME);
+    }
+
+    if ($empty = drush_get_option_list('empty')) {
+      // Deletes every product line item from a shopping cart order.
+      commerce_cart_order_empty($order);
+    }
 
     foreach ($products as $product_id) {
 
@@ -301,7 +320,7 @@ function commerce_drush_generate_customer_profiles($options = array()) {
     // Creating new customer profiles.
     foreach ($uids as $uid) {
       $customer_user = user_load($uid);
-      
+
       foreach ($options['types'] as $bundle_type) {
         for ($i = 0; $i < $options['number']; ++$i) {
 

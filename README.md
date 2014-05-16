@@ -28,9 +28,13 @@ Examples
 
     drush coa 2,3
 
-##### Create an order for 2 products with SKU SKU1001. 
+##### Create an order for 2 products with SKU SKU1001.
 
     drush --user=admin coa SKU1001 --quantity=2
+
+##### Before placing an order for product, empty the current cart.
+
+    drush --user=admin coa SKU1001 --empty
 
 ### Creates full payment for the (cart) order and completes the order (commerce-order-pay):
 
@@ -40,9 +44,11 @@ Examples
 
 #### Examples:
 
-##### Completes (cart) order for the admin user
+##### Completes (cart) order for the admin user.
 
     drush --user=admin commerce-order-pay
+
+### Generates customer profiles.                                                                      
 
 #### Usage:
 

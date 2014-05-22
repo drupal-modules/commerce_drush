@@ -71,6 +71,9 @@ Examples
     
     drush --users admin --entity-type="my-customer-profile-entity-type" billing 1
 
+##### Generates a single customer profile for admin being logged as admin
+
+    drush --user admin --users admin billing 1
     
 Dependencies
 ============

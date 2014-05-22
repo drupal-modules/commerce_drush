@@ -85,6 +85,7 @@ function commerce_drush_drush_command() {
       'drush --kill --users=admin generate-customer-profiles billing 1' => "Replaces all existing admin's customer profiles with a new one.",
       'drush --force generate-customer-profiles billing 1' => 'Generates customer profiles for all users and skips the prompt for continuation when there are more that 20 users in the database.',
       'drush --users admin --entity-type="my-customer-profile-entity-type" billing 1' => 'Generates a single customer profile for admin using specified custom entity type.',
+      'drush --user admin --users admin billing 1' => 'Create Billing profile for admin user being logged as admin.',
     ),
     'aliases' => array('gencp'),
   );

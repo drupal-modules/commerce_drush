@@ -19,6 +19,8 @@ function commerce_drush_drush_help($section) {
       return dt('Usage: drush generate-customer-profiles <entity_type>.');
     case 'drush:commerce-order-pay':
       return dt('Usage: drush --user=USER_NAME_OR_UID commerce-order-pay');
+    case 'drush:commerce-order-delete':
+      return dt('Usage: drush commerce-order-delete --order=ORDERID');
   }
 }
 
@@ -88,6 +90,25 @@ function commerce_drush_drush_command() {
       'drush --user admin --users admin billing 1' => 'Create Billing profile for admin user being logged as admin.',
     ),
     'aliases' => array('gencp'),
+  );
+
+  $items['commerce-order-delete'] = array(
+    'callback' => 'commerce_drush_drush_order_delete',
+    'description' => 'Deletes an order.',
+    'bootstrap' => DRUSH_BOOTSTRAP_MAX, // MAX is required for --user option to be used.
+    'aliases' => array('cod'),
+    'arguments' => array(
+    ),
+    'required-arguments' => TRUE,
+    'options' => array(
+      'order' => 'ID of an order to delete.',
+      'user' => 'User name or ID',
+    ),
+    'examples' => array(
+      'drush --order=123 commerce-order-delete' => 'Deletes order 123',
+      'drush --user=testuser commerce-order-delete' => 'Deletes all orders for user "testuser"',
+    ),
+    'core' => array(7),
   );
 
   return $items;
@@ -387,4 +408,54 @@ function commerce_drush_drush_order_pay() {
   commerce_payment_transaction_save($transaction);
   commerce_payment_commerce_payment_transaction_insert($transaction);
   commerce_checkout_complete($order);
+}
+
+/**
+ * Drush command to delete orders.
+ *
+ * @TODO Implement an --all switch to delete ALL orders.
+ */
+function commerce_drush_drush_order_delete() {
+  if ($order_id = drush_get_option('order')) {
+    if (!is_numeric($order_id)) {
+      drush_set_error('Commerce Drush', dt('The order ID %orderid is not numeric', array('%orderid' => $order_id)));
+      return;
+    }
+    $order_ids = array($order_id);
+  }
+
+  if ($user = drush_get_option('user')) {
+    if (is_numeric($user)) {
+      $user = user_load($user);
+    }
+    else {
+      $user = user_load_by_name($user);
+    }
+    if ($orders = commerce_order_load_multiple(array(), array('uid' => $user->uid))) {
+      $order_ids = array_keys($orders);
+    }
+  }
+
+  if ($order_id && $user) {
+    drush_set_error('Commerce Drush', dt('Please specify either --order or --user, but not both.'));
+    return;
+  }
+
+  if (empty($order_ids) || !is_array($order_ids)) {
+    drush_log(t('No orders to delete.'), 'success');
+    return;
+  }
+  else {
+    foreach ($order_ids as $order_id) {
+      if (!$order = commerce_order_load($order_id)) {
+        drush_set_error('Commerce Drush', dt('Unable to load order %order_id', array('%order_id' => $order_id)));
+        return;
+      }
+      if (commerce_order_delete($order->order_id)) {
+        drush_log(t('Deleted order @orderid.', array(
+          '@orderid' => $order_id,
+        )), 'success');
+      }
+    }
+  }
 }

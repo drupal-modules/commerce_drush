@@ -157,7 +157,7 @@ function commerce_drush_drush_place_order() {
       }
 
       // Create new line item based on selected product
-      $line_item = commerce_product_line_item_new($product, 1, $order->order_id);
+      $line_item = commerce_product_line_item_new($product, $quantity, $order->order_id);
 
       // Adding line item to the cart.
       commerce_cart_product_add($user->uid, $line_item);

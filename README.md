@@ -8,6 +8,7 @@ Commerce Drush, the Drupal Shell interface, allows you to execute Commerce opera
 It provides the following commands:
 
  - commerce-order-add (coa)
+ - commerce-order-delete (cod)
  - commerce-order-pay (cop)
  - generate-customer-profiles (gencp)
 
@@ -16,7 +17,7 @@ Run "drush help " to see supported command line options and arguments.
 Examples
 ========
 
-### Create an order (commerce-order-add).
+### Create orders (commerce-order-add).
 
 #### Examples:
 
@@ -35,6 +36,16 @@ Examples
 ##### Before placing an order for product, empty the current cart.
 
     drush --user=admin coa SKU1001 --empty
+
+### Delete orders
+
+#### Delete specific order id
+
+    drush --order=123 commerce-order-delete
+
+### Delete all orders for specific user
+
+    drush --user=testuser commerce-order-delete
 
 ### Creates full payment for the (cart) order and completes the order (commerce-order-pay):
 

@@ -47,6 +47,10 @@ Examples
 
     drush --user=testuser commerce-order-delete
 
+### Delete all orders
+
+    drush --order=all commerce-order-delete
+
 ### Creates full payment for the (cart) order and completes the order (commerce-order-pay):
 
 #### Usage:

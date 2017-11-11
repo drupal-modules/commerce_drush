@@ -412,16 +412,20 @@ function commerce_drush_drush_order_pay() {
 
 /**
  * Drush command to delete orders.
- *
- * @TODO Implement an --all switch to delete ALL orders.
  */
 function commerce_drush_drush_order_delete() {
   if ($order_id = drush_get_option('order')) {
-    if (!is_numeric($order_id)) {
-      drush_set_error('Commerce Drush', dt('The order ID %orderid is not numeric', array('%orderid' => $order_id)));
-      return;
+    if ($order_id == 'all') {
+      $orders = entity_load('commerce_order');
+      $order_ids = array_keys($orders);
     }
-    $order_ids = array($order_id);
+    else {
+      if (!is_numeric($order_id)) {
+        drush_set_error('Commerce Drush', dt('The order ID %orderid is not numeric', array('%orderid' => $order_id)));
+        return;
+      }
+      $order_ids = array($order_id);
+    }
   }
 
   if ($user = drush_get_option('user')) {
